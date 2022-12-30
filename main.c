@@ -5,7 +5,7 @@
 #include <time.h>
 
 int width = 20, height = 20;
-int gameover;
+int gameover, wall = 1, tailbehavior = 1;
 int x, y, fruitx, fruity, score, bscore;
 int tailx[100], taily[100];
 int counttail = 0;
@@ -133,19 +133,39 @@ void logic()
     default:
         break;
     }
-    //if (x > width || x < 0 || y > height || y < 0)
-    //    gameover = 1;
-    if (x >= width) x = 0; else if (x < 0) x = width - 1;
+    if(wall==1)
+    {
+        if (x >= width || x < 0 || y >= height || y < 0)
+            gameover = 1;
+    }
+    else{if (x >= width) x = 0; else if (x < 0) x = width - 1;
     if (y >= height) y = 0; else if (y < 0) y = height - 1;
+    }
+    if(tailbehavior==1){
     for (i = 0; i < counttail; i++)
         if (tailx[i] == x && taily[i] == y)
             gameover = 1;
+            }
     if (x == fruitx && y == fruity)
     {
         score += 10;
         fruitx = rand() % width;
         fruity = rand() % height;
         counttail++;
+    }
+}
+
+void fruitcheck()
+{
+    int i;
+    for (i = 0; i < counttail; i++)
+    {
+        if (fruitx == tailx[i] && fruity == taily[i])
+        {
+            fruitx = rand() % width;
+            fruity = rand() % height;
+            i = 0;
+        }
     }
 }
 
@@ -157,7 +177,7 @@ int main()
     fp = fopen(".\\score\\bestscore.txt", "r");
     if (fp == NULL)
     {
-        printf("Error opening file");
+        printf("Error opening file\nPlease check file on folder 'score\\bestscore.txt'\n");
         _getch();
         exit(1);
     }
@@ -165,6 +185,28 @@ int main()
     fclose(fp);
     srand(time(NULL));
     printf("Welcome to Snake Game \n");
+    printf("Choose wall behavior\n");
+    printf(" 1. Wall \n 2. No wall \n Enter your choice: ");
+    scanf("%d", &wall);
+    if (wall != 1 && wall != 2)
+    {
+        system("cls");
+        printf("Invalid choice");
+        _getch();
+        exit(0);
+    }
+    if (wall == 1){
+    printf("Choose tail behavior\n");
+    printf(" 1. Tail \n 2. No tail \n Enter your choice: ");
+    scanf("%d", &tailbehavior);
+    if (tailbehavior != 1 && tailbehavior != 2)
+    {
+        system("cls");
+        printf("Invalid choice");
+        _getch();
+        exit(0);
+    }
+    }
     printf("Choose difficulty level: \n");
     printf(" 1. Easy \n 2. Medium \n 3. Hard \n 4. Exit \n Enter your choice: ");
     scanf("%d", &n);
@@ -193,6 +235,7 @@ int main()
         draw();
         input();
         logic();
+        fruitcheck();
         Sleep(m);
     }
     system("cls");
